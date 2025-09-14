@@ -111,18 +111,19 @@ function getData() {
   
    // skip to first valuable log content
   while(!isLogStart(i) && i < rawData.length) i++;
-  i+=5;
+  i+=6;
   
    // parse first line to object
   while(i < rawData.length) {
     let c = rawData[i];   // shortcut for character on index i
     
-    if(c === ' ' || c === '\n') { // create new array with name s on object data
+    if(c === ' ' || c === "\r") { // create new array with name s on object data
       if(s !== "") {
         data[s] = [];
         dataNames[dataNames.length] = s;
+        console.log(s, c, rawData[i-1])
         s = ""; // clean s for next parsing iteration
-        if(c === '\n') break; // if a newline was found, the next valuable log content must be searched first
+        if(c === '\r') break; // if a newline was found, the next valuable log content must be searched first
       }
     } else {
       s = s + c;  // adding c to s
@@ -138,7 +139,7 @@ function getData() {
   
   // skip to interesting data
   while(!isLogStart(i) && i < rawData.length) i++;
-  i+=5;
+  i+=6;
   
   while(i < rawData.length) {
     let c = rawData[i];  // shortcut for character on index i
@@ -151,7 +152,7 @@ function getData() {
         // skip to interesting data
         if(c === '\n') {
           while(!isLogStart(i) && i < rawData.length) i++;
-          i+=5;
+          i+=6;
           j = 0;
         }
       }
