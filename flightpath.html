@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Flightpath</title>
+<style>
+#base {
+  position:absolute;
+  z-index:1;
+  height:80%;
+  width: 80%;
+  top: 10%;
+  left:15%;
+}
+#settings {
+  position:absolute;
+  z-index:1;
+  height:80%;
+  width: 10%;
+  top: 10%;
+  left:1%;
+}
+
+</style>
+</head>
+<body>
+<!--16228 × 8114-->
+<canvas id="base" width="16228" height="8114" style="border:1px solid #000000;"></canvas>
+
+
+<input type="submit" value="Reload log content" onclick="getData()">
+<input type="submit" value="Print flightpath" onclick="update()">
+<input type="submit" value="..." onclick="addMap()" id="mapButton">
+<input type="submit" value="Clear Canvas" onclick="clear()">
+
+<div id="settings">
+  Display Settings
+  <table>
+  <tr>
+  <td>Scale</td><td><input type="text" id="scale" name="value"  value="1"></td>
+  </tr>
+  
+  <tr>
+  <td>R</td><td><input type="text" id="r_col" name="value" value="256"></td>
+  </tr>
+  
+  <tr>
+  <td>G</td><td><input type="text" id="g_col" name="value" value="0"></td>
+  </tr>
+  
+  <tr>
+  <td>B</td><td><input type="text" id="b_col" name="value" value="0"></td>
+  </tr>
+
+  <tr>
+  <td>A</td><td><input type="text" id="a_col" name="value" value="256"></td>
+  </tr>
+  
+  </table>
+  
+  <br>
+  First click on the Browse button and select the log file.<br>
+  Now press the Map button to print the map onto the canvas. <br>
+  Now you can press Print flightpath to print the flightpath onto the map. <br><br>
+  If the canvas has a wierd aspect it is cased by the html-alignment. This does not affect the final picture. <br>
+</div>
+
+<div style="display:none;">
+<img id="map" width="16228" height="8114" src="map.png">
+</div>
+
+<script>
+
+const image = document.getElementById("map");
+let mapLoaded = false;
+image.addEventListener("load", (e) => { // makes sure to only display the map button once the map was loaded
+  mapLoaded = true;
+  document.getElementById("mapButton").value = "Map"
+  console.log("Map loaded successfully.")
+});
+
+function addMap(x, y) { // draws the map onto the canvas
+  if(mapLoaded) {
+    var canvas = document.getElementById('base');
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0);
+  }
+}
+
+let rawData = ""; // string containing text from the log file
+
+let data = {};  // object containing formated data parsed from rawData
+let dataNames = []; // list of all arrays in data
+
+function isLogStart(index) {  // function to test for a #f_log substring <- runtime O(n) can be optimised
+  return ( 
+    rawData[index] === "#"   &&
+    rawData[index+1] === "f" &&
+    rawData[index+2] === "_" &&
+    rawData[index+3] === "l" &&
+    rawData[index+4] === "o" &&
+    rawData[index+5] === "g");
+}
+
+function getData() {
+  data = {};  // cleans the data object
+  dataNames = []; // clean dataNames
+  let i = 0;  // index on rawData string
+  let s = ""; // substring that is beeing parsed
+  
+  console.log("creating object....");
+  
+   // skip to first valuable log content
+  while(!isLogStart(i) && i < rawData.length) i++;
+  i+=5;
+  
+   // parse first line to object
+  while(i < rawData.length) {
+    let c = rawData[i];   // shortcut for character on index i
+    
+    if(c === ' ' || c === '\n') { // create new array with name s on object data
+      if(s !== "") {
+        data[s] = [];
+        dataNames[dataNames.length] = s;
+        s = ""; // clean s for next parsing iteration
+        if(c === '\n') break; // if a newline was found, the next valuable log content must be searched first
+      }
+    } else {
+      s = s + c;  // adding c to s
+    }
+    i++;
+  }
+  
+  console.log("parsing data to object....")
+  
+  //fill object with data
+  let j = 0;  // iterator over the individual 
+  s = ""; // clearing reading string
+  
+  // skip to interesting data
+  while(!isLogStart(i) && i < rawData.length) i++;
+  i+=5;
+  
+  while(i < rawData.length) {
+    let c = rawData[i];  // shortcut for character on index i
+    
+    if(c === ' ' || c === '\n') {
+      if(s !== "") {
+        data[dataNames[j]].push(Number(s)); // adding parsed string s as number to the coresponding array under data
+        j ++;
+        s = ""; // cleaning s for next parsing iteration
+        // skip to interesting data
+        if(c === '\n') {
+          while(!isLogStart(i) && i < rawData.length) i++;
+          i+=5;
+          j = 0;
+        }
+      }
+    } else {
+      s = s + c;
+    }
+    if(c !== "\n") i++;
+  }
+  
+  //console.log(data)
+  //console.log(dataNames)
+}
+
+function clear() { // clears the canvas
+  var canvas = document.getElementById('base');
+  var ctx = canvas.getContext('2d');
+  var canvasWidth = canvas.width;
+  var canvasHeight = canvas.height;
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+}
+
+function update() { // prints the flight path with current settings onto the canvas
+  let entries = data.lat.length;  // 
+  
+  let scale = Number(document.getElementById("scale").value); // read settings
+  let r = Number(document.getElementById("r_col").value);
+  let g = Number(document.getElementById("g_col").value);
+  let b = Number(document.getElementById("b_col").value);
+  let a = Number(document.getElementById("a_col").value);
+  
+  var canvas = document.getElementById('base'); // setting up the canvas for painting
+  var ctx = canvas.getContext('2d');
+  var canvasWidth = canvas.width;
+  var canvasHeight = canvas.height;
+  var map = document.getElementById('map');
+  var w = map.width;
+  var h = map.height;
+  
+  
+  for(let i = 0; i < entries; i++) {
+  
+    let pos = latlontopositionxy(data.lat[i],data.lon[i]);
+    var x = (pos.x + w*1.5) % w // ensures the drawn pixels are on screen
+    var y = (-pos.y + h*1.5) % h // in html the y-codinate is inverted to the y cordinate specified on the map
+    
+    ctx.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
+    ctx.fillRect( x, y, 1*scale, 1*scale);
+  }
+}
+
+
+//this code was writen by djesse and translated to js
+
+function latlontopositionxy(lat,lon) {
+  var map = document.getElementById('map');
+  var w = map.width;
+  var h = map.height;
+  
+  let x = (lon / 180) * (w / 2)
+  let y = (lat / 90) * (h / 2) 
+  
+  return { x: (((w/2)+x)-(w/2))-10, // just like in djesses map the -10 and -29 are magical numbers that ensure the proper position of the dots on the map
+          y: (((h/2)+y)-(h/2))-29} //  if the dots are not were they shuld be feel free to play with these values
+}
+
+
+</script>
+
+<!-- The folowing stuff was taken from https://www.geeksforgeeks.org/javascript/how-to-read-a-local-text-file-using-javascript/ and modified -->
+
+<input type="file" name="inputfile" id="inputfile">
+
+	<script type="text/javascript">
+		document.getElementById('inputfile')
+			.addEventListener('change', function () {
+
+				let fr = new FileReader();
+				fr.onload = function () {
+				  rawData = fr.result;
+				  getData();
+				}
+
+				fr.readAsText(this.files[0]);
+			})
+	</script>
+
+<script>
+</script>
+</body>
+<html>
