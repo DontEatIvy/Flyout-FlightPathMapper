@@ -121,7 +121,6 @@ function getData() {
       if(s !== "") {
         data[s] = [];
         dataNames[dataNames.length] = s;
-        console.log(s, c, rawData[i-1])
         s = ""; // clean s for next parsing iteration
         if(c === '\r') break; // if a newline was found, the next valuable log content must be searched first
       }
@@ -201,6 +200,7 @@ function update() { // prints the flight path with current settings onto the can
     ctx.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
     ctx.fillRect( x, y, 1*scale, 1*scale);
   }
+  console.log("Printed flight path.")
 }
 
 
@@ -214,8 +214,8 @@ function latlontopositionxy(lat,lon) {
   let x = (lon / 180) * (w / 2)
   let y = (lat / 90) * (h / 2) 
   
-  return { x: (((w/2)+x)-(w/2))-10, // just like in djesses map the -10 and -29 are magical numbers that ensure the proper position of the dots on the map
-          y: (((h/2)+y)-(h/2))-29} //  if the dots are not were they shuld be feel free to play with these values
+  return { x: (((w/2)+x)-(w/2))-9, // just like in djesses map the -10 and -29 are magical numbers that ensure the proper position of the dots on the map
+          y: (((h/2)+y)-(h/2))-26} //  if the dots are not were they shuld be feel free to play with these values
 }
 
 
