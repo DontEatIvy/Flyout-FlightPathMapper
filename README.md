@@ -1,12 +1,12 @@
-## Flyout-FlightPathMapper
+# Flyout-FlightPathMapper
 This is an HTML-tool that allows you to print a via lua recorded flight path onto the flyout map.
 The edited map can then be downloaded as a png.
 
-# Dependencies
+## Dependencies
 - LAMP mod
 - some way to display local HTML and JavaScript (e.g. a browser)
 
-# How to use
+## How to use
 - Download the Git-Repository
 ```bash
 git clone https://github.com/DontEatIvy/Flyout-FlightPathMapper
@@ -27,18 +27,18 @@ git clone https://github.com/DontEatIvy/Flyout-FlightPathMapper
   Do to the size of the map the flight path might not be visible in the preview window.
 - A quick right-click onto the map allows you to open it in a new tab were you can zoom into the image to better view you flight path, or save it.
 
-# What do the buttons do?
+## What do the buttons do?
 ``Reload log content`` Attempts to re-parse the provided log. 
 ``Print flightpath`` Prints the flight path onto the canvas using provided settings.
 ``Map`` Prints the ``map.png`` onto the canvas. This overwrites all pixels painted so far.
 ``Clear Canvas`` Removes all pixels including the map and all flight paths of the canvas.
 ``Browse...`` Opens the file selection window. (If this doesn't work for you please contact me and provide which browser you are using. I only know it works on Firefox)
 
-# What do the Settings do
+## What do the Settings do
 ``Scale`` This width and height of each pixel painted as the flight path.
 `R`, `G`, `B`, `A` RGBA-Color gradients ranging from 0 to 256. This color will be used to paint the next flight path.
 
-# tracker.lua
+## tracker.lua
 In order to increase efficiency in log size a ``skipTicks`` local variable was added.
 In the version provided in the git this value is set to 10 and will therefor only log the lon and lat every 10th iteration of the program loop.
 **Feel free to change this variable.**
