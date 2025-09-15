@@ -2,11 +2,11 @@
 This is an HTML-tool that allows you to print a via lua recorded flight path onto the flyout map.
 The edited map can then be downloaded as a png.
 
-# Dependencies**
+# Dependencies
 - LAMP mod
 - some way to display local HTML and JavaScript (e.g. a browser)
 
-# How to use**
+# How to use
 - Download the Git-Repository
 ```bash
 git clone https://github.com/DontEatIvy/Flyout-FlightPathMapper
