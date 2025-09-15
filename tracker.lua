@@ -1,6 +1,6 @@
 --location
 
-local scipTicks = 10; -- amount of ticks skiped between entries
+local skipTicks = 10; -- amount of ticks skiped between entries
 
 
 
